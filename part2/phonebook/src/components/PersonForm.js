@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 const PersonForm = (props) => {
-  const { persons, addPersonHandler } = props;
+  const { persons, addPersonHandler, updatePersonHandler } = props;
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
 
@@ -10,9 +10,25 @@ const PersonForm = (props) => {
     const found = persons.find((person) => person.name === newName);
 
     if (found) {
-      alert(`${newName} is already added to phonebook.`);
+      if (
+        window.confirm(
+          `${found.name} is already added to phonebook, replace the old nunber with a new one?`
+        )
+      ) {
+        const newPerson = { ...found, number: newNumber };
+        setNewName("");
+        setNewNumber("");
+        updatePersonHandler(newPerson);
+      }
     } else {
-      const newPerson = { name: newName, number: newNumber };
+      let maxIdOfPerson = persons.reduce(
+        (max, person) => {
+          return person.id > max.id ? person : max;
+        },
+        { id: Number.MIN_SAFE_INTEGER }
+      );
+      const maxId = maxIdOfPerson.id;
+      const newPerson = { name: newName, number: newNumber, id: maxId + 1 };
       setNewName("");
       setNewNumber("");
       addPersonHandler(newPerson);

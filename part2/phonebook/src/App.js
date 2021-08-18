@@ -1,23 +1,71 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import personService from "./services/persons";
 import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
+import "./App.css";
+
+const Notification = ({ message }) => {
+  if (message === null) {
+    return null;
+  }
+
+  return <div className="error">{message}</div>;
+};
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: "Arto Hellas", number: "040-123456" },
-    { name: "Ada Lovelace", number: "39-44-5323523" },
-    { name: "Dan Abramov", number: "12-43-234345" },
-    { name: "Mary Poppendieck", number: "39-23-6423122" },
-  ]);
-
+  const [persons, setPersons] = useState([]);
   const [filterStr, SetFilterStr] = useState("");
-  const [filteredPersons, setFilteredPersons] = useState(persons);
+  const [filteredPersons, setFilteredPersons] = useState([]);
+  const [errMessage, setErrMessage] = useState(null);
+
+  useEffect(() => {
+    personService.getAll().then((initialPersons) => {
+      setPersons(initialPersons);
+      setFilteredPersons(initialPersons);
+    });
+  }, []);
 
   const addPersonHandler = (newPerson) => {
-    SetFilterStr("");
-    setFilteredPersons(persons.concat(newPerson));
-    setPersons(persons.concat(newPerson));
+    personService
+      .create(newPerson)
+      .then((returnedPerson) => {
+        SetFilterStr("");
+        setFilteredPersons(persons.concat(returnedPerson));
+        setPersons(persons.concat(returnedPerson));
+        setErrMessage(`Added ${returnedPerson.name}`);
+        setTimeout(() => {
+          setErrMessage(null);
+        }, 5000);
+      })
+      .catch((err) => {
+        console.log("errors:", err);
+      });
+  };
+
+  const updatePersonHandler = (newPerson) => {
+    personService
+      .update(newPerson.id, newPerson)
+      .then((returnedPerson) => {
+        SetFilterStr("");
+        setFilteredPersons(
+          persons.map((person) =>
+            person.id !== newPerson.id ? person : returnedPerson
+          )
+        );
+        setPersons(
+          persons.map((person) =>
+            person.id !== newPerson.id ? person : returnedPerson
+          )
+        );
+        setErrMessage(`Updated ${returnedPerson.name}`);
+        setTimeout(() => {
+          setErrMessage(null);
+        }, 5000);
+      })
+      .catch((err) => {
+        console.log("errors:", err);
+      });
   };
 
   const displayFilter = (event) => {
@@ -32,8 +80,36 @@ const App = () => {
     }
   };
 
+  const removePersonOf = (id) => {
+    const person = persons.find((person) => person.id === id);
+    if (window.confirm(`Do you really want to delete ${person.name}?`)) {
+      personService
+        .remove(id)
+        .then((result) => {
+          console.log(result);
+          setFilteredPersons(
+            filteredPersons.filter((person) => person.id !== id)
+          );
+          setPersons(persons.filter((person) => person.id !== id));
+          setErrMessage(`${person.name} has been deleted`);
+          setTimeout(() => {
+            setErrMessage(null);
+          }, 5000);
+        })
+        .catch((err) => {
+          setErrMessage(
+            `Information of ${person.name} has already been removde from server. Please refresh the page.`
+          );
+          setTimeout(() => {
+            setErrMessage(null);
+          }, 5000);
+        });
+    }
+  };
+
   return (
     <div>
+      <Notification message={errMessage} />
       <h2>Phonebook</h2>
       <Filter
         tip="filter shown with"
@@ -41,9 +117,16 @@ const App = () => {
         filterStr={filterStr}
       />
       <h2>add a new</h2>
-      <PersonForm persons={persons} addPersonHandler={addPersonHandler} />
+      <PersonForm
+        persons={persons}
+        addPersonHandler={addPersonHandler}
+        updatePersonHandler={updatePersonHandler}
+      />
       <h2>Numbers</h2>
-      <Persons filteredPersons={filteredPersons} />
+      <Persons
+        filteredPersons={filteredPersons}
+        removePerson={removePersonOf}
+      />
     </div>
   );
 };

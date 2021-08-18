@@ -7,6 +7,11 @@
   pointer-events: none;
 }
 
+.flag {
+  width: 96px;
+  height: 72px;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
@@ -35,18 +40,4 @@
   to {
     transform: rotate(360deg);
   }
-}
-
-h1 {
-  color: green;
-}
-
-.error {
-  color: red;
-  background: lightgrey;
-  font-size: 20px;
-  border-style: solid;
-  border-radius: 5px;
-  padding: 10px;
-  margin-bottom: 10px;
 }

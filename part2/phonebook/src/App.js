@@ -39,7 +39,7 @@ const App = () => {
         }, 5000);
       })
       .catch((err) => {
-        console.log("errors:", err);
+        console.log("errors:", err.response.data);
       });
   };
 
@@ -64,7 +64,7 @@ const App = () => {
         }, 5000);
       })
       .catch((err) => {
-        console.log("errors:", err);
+        console.log("errors:", err.response.data);
       });
   };
 

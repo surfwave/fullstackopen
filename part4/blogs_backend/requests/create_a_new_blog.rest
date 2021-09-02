@@ -1,0 +1,10 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+
+{
+    "title": "The Afghan Army Collapsed In Days",
+    "author": "Tom Bowman",
+    "url": "https://www.npr.org/2021/08/20/1029451594/the-afghan-army-collapsed-in-days-here-are-the-reasons-why",
+    "likes": 0,
+    "userId": "6124f1b966f6a433f02fea23"
+}
